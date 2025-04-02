@@ -18,6 +18,7 @@ credentials = ServiceAccountCredentials.from_json_keyfile_dict(credentials_info,
 SPREADSHEET_ID = "18M4Kh_wpv-NUlLdy0cH-3TN0Trxsapluskmpwv_oFMk"
 SHEET_NAME = "シート1"
 
+# データ取得関数
 def load_driver_data():
     try:
         client = gspread.authorize(credentials)
@@ -30,21 +31,38 @@ def load_driver_data():
         st.error(f"スプレッドシートの読み込みに失敗しました: {e}")
         return pd.DataFrame()
 
-# アプリUI
+# --- アプリ構成 ---
 st.set_page_config(page_title="配車アプリ", layout="centered")
-st.title("🚚 配車アプリ - ドライバー選定")
+st.title("🚚 配車アプリ")
 
+# データ取得
 df = load_driver_data()
 if df.empty:
     st.stop()
 
-st.subheader("全ドライバー一覧")
-st.dataframe(df)
+# --- リーダー選出 ---
+st.markdown("### 👤 本日のリーダー選出")
+leader_candidates = ["石井", "梅津", "小平佳代子"]
+selected_leader = st.radio("リーダーを1名選んでください", leader_candidates, horizontal=True)
 
-# リーダー選出
-st.subheader("📋 本日のリーダー選出")
-candidates = df["名前"].tolist()
-selected = st.radio("リーダーを1名選んでください", candidates)
+if st.button("✅ リーダーを確定"):
+    st.success(f"本日のリーダーは {selected_leader} さんです！")
 
-if st.button("リーダーを確定"):
-    st.success(f"✅ 本日の担当者は {selected} さんです！")
+# --- 出荷従事者選出 ---
+st.markdown("### 📦 本日の従事者（各便1名）")
+workers = ["石井", "小平", "梅津", "長", "小鮒", "澤田", "中島", "登田"]
+
+col1, col2, col3 = st.columns(3)
+with col1:
+    worker1 = st.selectbox("1便担当", workers)
+with col2:
+    worker2 = st.selectbox("2便担当", workers)
+with col3:
+    worker3 = st.selectbox("3便担当", workers)
+
+if st.button("🚛 従事者を確定"):
+    st.success(f"1便：{worker1} さん、2便：{worker2} さん、3便：{worker3} さん")
+
+# --- ドライバー名簿（参考用） ---
+with st.expander("📋 全ドライバー一覧（参考）"):
+    st.dataframe(df, use_container_width=True)
