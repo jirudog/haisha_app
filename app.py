@@ -1,7 +1,7 @@
 import streamlit as st
+import json
 import gspread
 import pandas as pd
-import json
 from oauth2client.service_account import ServiceAccountCredentials
 
 # Google APIのスコープ設定
@@ -31,6 +31,7 @@ def load_driver_data():
         return pd.DataFrame()
 
 # アプリUI
+st.set_page_config(page_title="配車アプリ", layout="centered")
 st.title("🚚 配車アプリ - ドライバー選定")
 
 df = load_driver_data()
@@ -40,6 +41,7 @@ if df.empty:
 st.subheader("全ドライバー一覧")
 st.dataframe(df)
 
+# リーダー選出
 st.subheader("📋 本日のリーダー選出")
 candidates = df["名前"].tolist()
 selected = st.radio("リーダーを1名選んでください", candidates)
